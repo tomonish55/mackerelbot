@@ -1,0 +1,66 @@
+#/bin/bash
+
+RETVAL=0
+pidFile="$HOME/slackbot.pid"
+logFile="$HOME/slackbot.log"
+log_path="$HOME/slackbot/logs"
+
+# log path check
+if  [  ! -e $log_path ]; then
+  echo "Please create log directory !" & exit
+fi
+
+do_start() {
+        if pid=`do_status` >/dev/null ;then
+          echo "slackbot is already running: $pid"
+          exit 1
+        fi
+        echo "Starting"
+        cd /root/slackbot/
+        nohup python $HOME/slackbot/run.py < /dev/null > $logFile 2>&1 &
+        [ $? -ne 0 ] && echo Stopping || echo OK
+        pid=$!
+        echo $pid | tee $pidFile
+}
+
+do_stop() {
+        echo "Stopping"
+        pid=`cat $pidFile`
+        kill -9 "$pid"
+        rm -rf $pidFile
+        RETVAL=$?
+        echo
+        return $RETVAL
+}
+
+do_status(){
+  if [ -s $pidFile ];then
+    pid=`cat $pidFile`
+    if [ -d /proc/$pid ];then
+      echo "$pid"
+      echo "Now running"
+      return 0
+    fi
+  fi
+  echo "Stopping"
+  return 1
+}
+
+case $* in
+        start)
+           do_start
+           ;;
+        stop)
+          do_stop
+          ;;
+        status)
+          do_status
+          ;;
+        *)
+        echo "usage: $0 {start|stop|status}" >&2
+         exit 1
+         ;;
+
+    esac
+
+exit $RETVA

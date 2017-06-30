@@ -1,0 +1,6 @@
+mackerel_agent_change_status  : "mc condition target"
+mackerel_condition            : "standby|stb, working|wo, maintenance|ma, poweroff|po"
+mackerel_agent_status         : "mc status tatrget"
+mackerel_alert_list           : "mc alert"
+mackerel_alert_close          : "mc alert close alert_id close_reason"
+ping_exec                     : "ping target"
